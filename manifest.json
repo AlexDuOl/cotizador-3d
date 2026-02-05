@@ -1,0 +1,17 @@
+{
+  "name": "Cotizador 3D Pro",
+  "short_name": "3D Calc",
+  "description": "Calculadora de costos para impresión 3D",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#4338ca",
+  "theme_color": "#4338ca",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/944/944051.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

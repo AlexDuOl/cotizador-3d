@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Cotizador 3D Pro</title>
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#4338ca">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Evita que se vea como web al mantener presionado */
+        body { 
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            touch-action: manipulation;
+        }
+        input { user-select: auto; } /* Permitir escribir en inputs */
+    </style>
+</head>
+<body class="bg-slate-900 min-h-screen font-sans text-slate-800">
+    <div class="max-w-md mx-auto bg-white min-h-screen shadow-2xl overflow-hidden flex flex-col">
+        <div class="bg-indigo-700 p-6 text-white text-center shadow-lg">
+            <h1 class="text-2xl font-black uppercase tracking-tighter">3D Print Calc</h1>
+            <p class="text-[10px] opacity-80 uppercase tracking-widest">Business Suite</p>
+        </div>
+        
+        <div class="p-6 space-y-5 flex-grow overflow-y-auto">
+            <div class="space-y-3">
+                <input type="text" id="nombrePieza" class="w-full border-b-2 border-slate-200 p-2 focus:border-indigo-500 outline-none text-lg font-bold" placeholder="Nombre del proyecto">
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase">Gramos</label>
+                        <input type="number" id="peso" class="w-full bg-transparent text-xl font-bold outline-none" placeholder="0">
+                    </div>
+                    <div class="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase">Horas</label>
+                        <input type="number" id="horas" class="w-full bg-transparent text-xl font-bold outline-none" placeholder="0">
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div class="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase">Envío ($)</label>
+                    <input type="number" id="envio" class="w-full bg-transparent text-lg outline-none" value="0">
+                </div>
+                <div class="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase">Empaque ($)</label>
+                    <input type="number" id="empaque" class="w-full bg-transparent text-lg outline-none" value="0">
+                </div>
+            </div>
+
+            <button onclick="calcularTriple()" class="w-full bg-indigo-600 active:bg-indigo-800 text-white font-black py-5 rounded-2xl shadow-xl transform active:scale-95 transition-all uppercase tracking-widest text-sm">
+                Calcular Presupuestos
+            </button>
+
+            <div id="panelResultados" class="hidden space-y-4 pb-10">
+                <div class="p-4 bg-red-50 rounded-2xl border border-red-100 flex justify-between items-center">
+                    <div>
+                        <p class="text-[10px] font-bold text-red-600 uppercase text-xs">Público (100%)</p>
+                        <h2 id="resP" class="text-2xl font-black text-red-900">$0.00</h2>
+                    </div>
+                    <button onclick="copiarPresupuesto('Público', 'resP')" class="bg-red-600 text-white p-3 rounded-xl text-xs font-bold shadow-md">COPIAR</button>
+                </div>
+
+                <div class="p-4 bg-yellow-50 rounded-2xl border border-yellow-100 flex justify-between items-center">
+                    <div>
+                        <p class="text-[10px] font-bold text-yellow-600 uppercase">Mayoreo (70%)</p>
+                        <h2 id="resM" class="text-2xl font-black text-yellow-900">$0.00</h2>
+                    </div>
+                    <button onclick="copiarPresupuesto('Mayoreo', 'resM')" class="bg-yellow-600 text-white p-3 rounded-xl text-xs font-bold shadow-md">COPIAR</button>
+                </div>
+
+                <div class="p-4 bg-green-50 rounded-2xl border border-green-100 flex justify-between items-center">
+                    <div>
+                        <p class="text-[10px] font-bold text-green-600 uppercase text-xs font-bold">Mínimo (50%)</p>
+                        <h2 id="resB" class="text-2xl font-black text-green-900">$0.00</h2>
+                    </div>
+                    <button onclick="copiarPresupuesto('Mínimo', 'resB')" class="bg-green-600 text-white p-3 rounded-xl text-xs font-bold shadow-md">COPIAR</button>
+                </div>
+            </div>
+        </div>
+
+        <details class="bg-slate-800 text-white p-4">
+            <summary class="text-center text-xs font-bold cursor-pointer opacity-50">CONFIGURACIÓN BASE</summary>
+            <div class="grid grid-cols-2 gap-4 mt-4 text-[11px]">
+                <label>Fila $/kg: <input type="number" id="confFil" class="w-full bg-slate-700 p-2 rounded mt-1" value="25"></label>
+                <label>Labor $/hr: <input type="number" id="confMO" class="w-full bg-slate-700 p-2 rounded mt-1" value="5"></label>
+                <label>IVA (%): <input type="number" id="confIva" class="w-full bg-slate-700 p-2 rounded mt-1" value="16"></label>
+                <label>ML (%): <input type="number" id="confML" class="w-full bg-slate-700 p-2 rounded mt-1" value="13"></label>
+            </div>
+        </details>
+    </div>
+
+    <script>
+        // La misma lógica de cálculo y guardado anterior
+        const keys = ['confFil', 'confMO', 'confIva', 'confML'];
+        keys.forEach(k => {
+            const el = document.getElementById(k);
+            if(localStorage.getItem(k)) el.value = localStorage.getItem(k);
+            el.oninput = () => localStorage.setItem(k, el.value);
+        });
+
+        function calcularMarkup(costoBase, margenPorcentaje, pIVA, pML) {
+            const subtotalConGanancia = costoBase + (costoBase * (margenPorcentaje / 100));
+            return subtotalConGanancia / (1 - pIVA - pML);
+        }
+
+        function calcularTriple() {
+            const peso = parseFloat(document.getElementById('peso').value) || 0;
+            const horas = parseFloat(document.getElementById('horas').value) || 0;
+            const envio = parseFloat(document.getElementById('envio').value) || 0;
+            const empaque = parseFloat(document.getElementById('empaque').value) || 0;
+            const cFil = parseFloat(document.getElementById('confFil').value) || 0;
+            const cMO = parseFloat(document.getElementById('confMO').value) || 0;
+            const pIVA = (parseFloat(document.getElementById('confIva').value) || 0) / 100;
+            const pML = (parseFloat(document.getElementById('confML').value) || 0) / 100;
+
+            const costoProduccion = (peso * (cFil / 1000)) + (horas * cMO) + envio + empaque;
+
+            document.getElementById('resP').innerText = `$${calcularMarkup(costoProduccion, 100, pIVA, pML).toFixed(2)}`;
+            document.getElementById('resM').innerText = `$${calcularMarkup(costoProduccion, 70, pIVA, pML).toFixed(2)}`;
+            document.getElementById('resB').innerText = `$${calcularMarkup(costoProduccion, 50, pIVA, pML).toFixed(2)}`;
+            
+            document.getElementById('panelResultados').classList.remove('hidden');
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        }
+
+        function copiarPresupuesto(tipo, idPrecio) {
+            const nombre = document.getElementById('nombrePieza').value || "Pieza 3D";
+            const precio = document.getElementById(idPrecio).innerText;
+            const texto = `📦 *COTIZACIÓN 3D*\n\n🛠 *Proyecto:* ${nombre}\n💰 *Precio (${tipo}):* ${precio}\n\n✅ ¡Quedo a tus órdenes!`;
+            navigator.clipboard.writeText(texto);
+            alert("✅ ¡Copiado!");
+        }
+    </script>
+</body>
+</html>

@@ -1,15 +1,18 @@
-{
-  "name": "Cotizador 3D Industrial",
-  "short_name": "3DCalc",
-  "start_url": "index.html",
-  "display": "standalone",
-  "background_color": "#1e1b4b",
-  "theme_color": "#1e1b4b",
-  "icons": [
-    {
-      "src": "https://cdn-icons-png.flaticon.com/512/944/944051.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
-  ]
-}
+// Estrategia: Network First (Prioriza internet para tener lo último del GitHub)
+self.addEventListener('fetch', (event) => {
+  event.respondWith(
+    fetch(event.request)
+      .then((response) => {
+        // Si hay internet, guarda la nueva versión en caché
+        return caches.open(CACHE_NAME).then((cache) => {
+          cache.put(event.request, response.clone());
+          return response;
+        });
+      })
+      .catch(() => {
+        // Si NO hay internet, usa lo que tenemos guardado
+        return caches.match(event.request);
+      })
+  );
+});
+

@@ -1,104 +1,286 @@
-<main class="p-5 space-y-6 flex-grow overflow-y-auto pb-24">
-    
-    <section class="space-y-3">
-        <h2 class="text-indigo-400 text-[10px] font-black uppercase tracking-widest px-1">1. Datos del Slicer</h2>
-        <div class="grid grid-cols-2 gap-3">
-            <div class="bg-slate-700 p-3 rounded-xl border border-slate-600">
-                <label class="block text-[10px] text-slate-400 font-bold uppercase mb-1">Gramos totales</label>
-                <input type="number" id="peso" class="w-full bg-transparent text-lg font-bold outline-none" placeholder="Ej: 150">
-            </div>
-            <div class="bg-slate-700 p-3 rounded-xl border border-slate-600">
-                <label class="block text-[10px] text-slate-400 font-bold uppercase mb-1">Horas de máquina</label>
-                <input type="number" id="horas" class="w-full bg-transparent text-lg font-bold outline-none" placeholder="Ej: 5.5">
-            </div>
-        </div>
-    </section>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>3D Print Master Pro</title>
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#1e1b4b">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="manifest" href="manifest.json">
+    <style>
+        /* Optimización para evitar selección de texto accidental en móviles */
+        .no-select { -webkit-tap-highlight-color: transparent; }
+        ::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 font-sans no-select">
 
-    <section class="space-y-3">
-        <h2 class="text-indigo-400 text-[10px] font-black uppercase tracking-widest px-1">2. Preparación y Diseño</h2>
-        <div class="bg-slate-700 p-3 rounded-xl border border-slate-600">
-            <label class="block text-[10px] text-slate-400 font-bold uppercase mb-2">¿Cómo obtuviste el archivo?</label>
-            <select id="tipoDiseno" onchange="actualizarPlaceholderDiseño()" class="w-full bg-slate-800 p-2 rounded-lg text-sm outline-none border border-slate-600">
-                <option value="sin">Descargado gratis (Thingiverse/Cults)</option>
-                <option value="propio">Yo lo diseñé (Cobrar mis horas)</option>
-                <option value="comprado">Lo compré (Repartir costo del STL)</option>
-            </select>
-            <div id="contenedorValorDiseno" class="mt-3 hidden">
-                <label id="labelValorDiseno" class="block text-[9px] text-indigo-300 font-bold uppercase mb-1">Costo o Tiempo</label>
-                <input type="number" id="valorDiseno" class="w-full bg-slate-600 p-2 rounded text-sm outline-none" placeholder="0">
+    <div class="max-w-md mx-auto min-h-screen flex flex-col bg-slate-800 shadow-2xl">
+        <header class="bg-indigo-900 p-6 text-center border-b border-indigo-500 shadow-lg">
+            <h1 class="text-2xl font-black tracking-tighter italic">3D PRINT MASTER</h1>
+            <p class="text-[10px] text-indigo-300 font-bold tracking-widest uppercase">Calculadora de Cotizaciones</p>
+        </header>
+
+        <main class="p-5 space-y-6 flex-grow overflow-y-auto pb-10">
+            
+            <section class="space-y-3">
+                <h2 class="text-indigo-400 text-[10px] font-black uppercase tracking-widest px-1">1. Datos del Slicer (Cura/Orca)</h2>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-slate-700 p-3 rounded-xl border border-slate-600">
+                        <label class="block text-[10px] text-slate-400 font-bold uppercase mb-1">Peso (gramos)</label>
+                        <input type="number" id="peso" class="w-full bg-transparent text-lg font-bold outline-none" placeholder="0">
+                    </div>
+                    <div class="bg-slate-700 p-3 rounded-xl border border-slate-600">
+                        <label class="block text-[10px] text-slate-400 font-bold uppercase mb-1">Tiempo (horas)</label>
+                        <input type="number" id="horas" class="w-full bg-transparent text-lg font-bold outline-none" placeholder="0">
+                    </div>
+                </div>
+            </section>
+
+            <section class="space-y-3">
+                <h2 class="text-indigo-400 text-[10px] font-black uppercase tracking-widest px-1">2. Preparación y Diseño</h2>
+                <div class="bg-slate-700 p-3 rounded-xl border border-slate-600">
+                    <label class="block text-[10px] text-slate-400 font-bold uppercase mb-2">Origen del archivo</label>
+                    <select id="tipoDiseno" onchange="actualizarPlaceholderDiseño()" class="w-full bg-slate-800 p-2 rounded-lg text-sm outline-none border border-slate-600">
+                        <option value="sin">Descargado Gratis</option>
+                        <option value="propio">Yo lo diseñé (Cobrar horas)</option>
+                        <option value="comprado">Lo compré (Repartir costo)</option>
+                    </select>
+                    <div id="contenedorValorDiseno" class="mt-3 hidden">
+                        <label id="labelValorDiseno" class="block text-[9px] text-indigo-300 font-bold uppercase mb-1">Valor</label>
+                        <input type="number" id="valorDiseno" class="w-full bg-slate-600 p-2 rounded text-sm outline-none" placeholder="0">
+                    </div>
+                </div>
+            </section>
+
+            <section class="space-y-3">
+                <h2 class="text-indigo-400 text-[10px] font-black uppercase tracking-widest px-1">3. Valor Comercial y Venta</h2>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-slate-700 p-3 rounded-xl">
+                        <label class="block text-[10px] text-slate-400 font-bold uppercase mb-1">Tipo de Trabajo</label>
+                        <select id="clasif" class="w-full bg-slate-800 p-2 rounded-lg text-[11px] border border-slate-600">
+                            <option value="C">C - Simple / Funcional</option>
+                            <option value="B">B - Personalizado</option>
+                            <option value="A">A - Único / Urgente</option>
+                        </select>
+                    </div>
+                    <div class="bg-slate-700 p-3 rounded-xl">
+                        <label class="block text-[10px] text-slate-400 font-bold uppercase mb-1">Canal de Venta</label>
+                        <select id="plataforma" class="w-full bg-slate-800 p-2 rounded-lg text-[11px] border border-slate-600">
+                            <option value="directo">Venta Directa</option>
+                            <option value="ml">Mercado Libre (14%)</option>
+                            <option value="shopify">Shopify (3%)</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+
+            <section class="space-y-3">
+                <h2 class="text-indigo-400 text-[10px] font-black uppercase tracking-widest px-1">4. Entrega y Empaque</h2>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-slate-700 p-3 rounded-xl">
+                        <label class="block text-[10px] text-slate-400 font-bold uppercase mb-1">Envío</label>
+                        <select id="envio" class="w-full bg-slate-800 p-2 rounded-lg text-[11px] border border-slate-600">
+                            <option value="0">Paga el Cliente</option>
+                            <option value="150">Yo lo absorbo ($150)</option>
+                        </select>
+                    </div>
+                    <div class="bg-slate-700 p-3 rounded-xl">
+                        <label class="block text-[10px] text-slate-400 font-bold uppercase mb-1">Empaque</label>
+                        <select id="empaque" class="w-full bg-slate-800 p-2 rounded-lg text-[11px] border border-slate-600">
+                            <option value="5">Básico (Bolsa)</option>
+                            <option value="25">Pro (Caja)</option>
+                            <option value="0">Sin empaque</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+
+            <input type="text" id="nombrePieza" class="w-full bg-slate-900 border-2 border-dashed border-slate-700 p-3 rounded-xl text-center text-sm font-bold text-indigo-300 outline-none" placeholder="📝 Nombre del proyecto...">
+
+            <button onclick="calcularTodo()" class="w-full bg-gradient-to-r from-indigo-600 to-blue-600 py-4 rounded-2xl font-black shadow-xl active:scale-95 transition-all uppercase tracking-widest">
+                Calcular Precios
+            </button>
+
+            <div id="resultados" class="hidden space-y-4 animate-in fade-in zoom-in duration-300">
+                <div class="bg-indigo-950/50 p-5 rounded-3xl border border-indigo-500 shadow-2xl">
+                    <div class="flex justify-between items-center text-red-400 mb-2">
+                        <span class="font-bold uppercase text-xs tracking-widest">Precio Público</span>
+                        <span id="resPub" class="text-3xl font-black">$0.00</span>
+                    </div>
+                    <div class="flex justify-between items-center text-yellow-400 mb-2">
+                        <span class="font-bold uppercase text-[10px]">M. Mayoreo</span>
+                        <span id="resMed" class="text-xl font-bold">$0.00</span>
+                    </div>
+                    <div class="flex justify-between items-center text-green-400 mb-4">
+                        <span class="font-bold uppercase text-[10px]">Mayoreo</span>
+                        <span id="resMay" class="text-xl font-bold">$0.00</span>
+                    </div>
+
+                    <button onclick="toggleDesglose()" class="w-full text-[10px] text-indigo-300 underline uppercase font-bold mb-4">
+                        Ver Desglose Técnico
+                    </button>
+                    
+                    <div id="desgloseDetalle" class="hidden bg-slate-900/80 p-4 rounded-xl text-[11px] space-y-2 text-slate-300 border border-slate-700 mb-4">
+                        <div class="flex justify-between"><span>Filamento:</span><span id="dMat"></span></div>
+                        <div class="flex justify-between"><span>Mano de Obra + Diseño:</span><span id="dMO"></span></div>
+                        <div class="flex justify-between"><span>Energía + Desgaste:</span><span id="dEne"></span></div>
+                        <div class="flex justify-between"><span>Gastos Fijos:</span><span id="dFij"></span></div>
+                        <div class="flex justify-between border-t border-slate-700 pt-2 font-bold text-white uppercase text-[9px]">
+                            <span>Costo de Producción:</span><span id="dTotal"></span>
+                        </div>
+                        <div class="flex justify-between text-green-400 font-black italic text-xs pt-1">
+                            <span>Tu Ganancia Neta:</span><span id="dGan"></span>
+                        </div>
+                    </div>
+
+                    <button onclick="copiarWhatsApp()" class="w-full bg-green-600 hover:bg-green-700 text-white py-4 rounded-2xl font-black text-xs flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-all uppercase tracking-widest">
+                        Enviar a WhatsApp
+                    </button>
+                </div>
             </div>
-        </div>
-    </section>
 
-    <section class="space-y-3">
-        <h2 class="text-indigo-400 text-[10px] font-black uppercase tracking-widest px-1">3. Valor Comercial y Venta</h2>
-        <div class="grid grid-cols-2 gap-3">
-            <div class="bg-slate-700 p-3 rounded-xl">
-                <label class="block text-[10px] text-slate-400 font-bold uppercase mb-1">Complejidad (Margen)</label>
-                <select id="clasif" class="w-full bg-slate-800 p-2 rounded-lg text-[11px] border border-slate-600">
-                    <option value="C">C - Pieza Simple (Funcional)</option>
-                    <option value="B">B - Personalizado (Regalo/Detalle)</option>
-                    <option value="A">A - Diseño Único o Urgente</option>
-                </select>
+            <section class="mt-8 border-t border-slate-700 pt-6">
+                <h3 class="text-xs font-black text-slate-500 uppercase tracking-[0.2em] mb-4 text-center">Últimos 5 Cálculos</h3>
+                <div id="listaHistorial" class="space-y-3"></div>
+                <button onclick="borrarHistorial()" class="w-full mt-4 text-[9px] text-red-500/50 uppercase font-bold hover:text-red-500 transition-colors">Limpiar Historial</button>
+            </section>
+
+        </main>
+
+        <details class="bg-slate-950 p-4 border-t border-slate-800">
+            <summary class="text-center text-[10px] font-black text-slate-600 cursor-pointer uppercase tracking-widest">Ajustes de Costos Fijos</summary>
+            <div class="grid grid-cols-2 gap-4 mt-4 text-[11px] p-2 bg-slate-900 rounded-xl">
+                <div><label class="text-slate-500 font-bold uppercase text-[9px]">$/kg Filamento</label><input type="number" id="cFil" class="w-full bg-slate-800 p-2 mt-1 rounded" value="500"></div>
+                <div><label class="text-slate-500 font-bold uppercase text-[9px]">Tarifa Luz (kWh)</label><input type="number" id="cLuz" class="w-full bg-slate-800 p-2 mt-1 rounded" value="0.95"></div>
+                <div><label class="text-slate-500 font-bold uppercase text-[9px]">Mi Hora Laboral $</label><input type="number" id="cLab" class="w-full bg-slate-800 p-2 mt-1 rounded" value="50"></div>
+                <div><label class="text-slate-500 font-bold uppercase text-[9px]">Desgaste Máquina/hr</label><input type="number" id="cDep" class="w-full bg-slate-800 p-2 mt-1 rounded" value="2"></div>
+                <div><label class="text-slate-500 font-bold uppercase text-[9px]">Gastos Fijos/Pieza</label><input type="number" id="cFij" class="w-full bg-slate-800 p-2 mt-1 rounded" value="10"></div>
             </div>
-            <div class="bg-slate-700 p-3 rounded-xl">
-                <label class="block text-[10px] text-slate-400 font-bold uppercase mb-1">¿Dónde lo vendes?</label>
-                <select id="plataforma" class="w-full bg-slate-800 p-2 rounded-lg text-[11px] border border-slate-600">
-                    <option value="directo">Venta Directa (Efectivo/Transfer)</option>
-                    <option value="ml">Mercado Libre (Comisión 14%)</option>
-                    <option value="shopify">Shopify (Comisión 3%)</option>
-                </select>
-            </div>
-        </div>
-    </section>
+            <button onclick="actualizarApp()" class="w-full mt-4 py-2 text-[9px] bg-indigo-900/30 text-indigo-400 rounded-lg uppercase font-black border border-indigo-500/30">🔄 Buscar Actualizaciones</button>
+        </details>
+    </div>
 
-    <section class="space-y-3">
-        <h2 class="text-indigo-400 text-[10px] font-black uppercase tracking-widest px-1">4. Entrega y Empaque</h2>
-        <div class="grid grid-cols-2 gap-3">
-            <div class="bg-slate-700 p-3 rounded-xl">
-                <label class="block text-[10px] text-slate-400 font-bold uppercase mb-1">¿Quién paga el envío?</label>
-                <select id="envio" class="w-full bg-slate-800 p-2 rounded-lg text-[11px] border border-slate-600">
-                    <option value="0">El Cliente (O entrega local)</option>
-                    <option value="150">Yo lo pago (Sumar al precio)</option>
-                </select>
-            </div>
-            <div class="bg-slate-700 p-3 rounded-xl">
-                <label class="block text-[10px] text-slate-400 font-bold uppercase mb-1">Tipo de Empaque</label>
-                <select id="empaque" class="w-full bg-slate-800 p-2 rounded-lg text-[11px] border border-slate-600">
-                    <option value="5">Básico (Bolsa Celofán)</option>
-                    <option value="25">Pro (Caja + Protección)</option>
-                    <option value="0">Sin Empaque</option>
-                </select>
-            </div>
-        </div>
-    </section>
+    <script>
+        // --- LOGICA DE DISEÑO ---
+        function actualizarPlaceholderDiseño() {
+            const tipo = document.getElementById('tipoDiseno').value;
+            const contenedor = document.getElementById('contenedorValorDiseno');
+            const label = document.getElementById('labelValorDiseno');
+            const input = document.getElementById('valorDiseno');
 
-    <input type="text" id="nombrePieza" class="w-full bg-slate-900 border-2 border-dashed border-slate-700 p-3 rounded-xl text-center text-sm font-bold text-indigo-300 outline-none" placeholder="📝 Escribe el nombre del proyecto aquí...">
-
-    <button onclick="calcularTodo()" class="w-full bg-gradient-to-r from-indigo-600 to-blue-600 py-4 rounded-2xl font-black shadow-xl shadow-indigo-900/40 active:scale-95 transition-all uppercase tracking-widest">
-        Calcular Precios Ahora
-    </button>
-</main>
-
-<script>
-// Agrega esta pequeña función extra para mejorar la experiencia del diseño
-function actualizarPlaceholderDiseño() {
-    const tipo = document.getElementById('tipoDiseno').value;
-    const contenedor = document.getElementById('contenedorValorDiseno');
-    const label = document.getElementById('labelValorDiseno');
-    const input = document.getElementById('valorDiseno');
-
-    if (tipo === 'sin') {
-        contenedor.classList.add('hidden');
-    } else {
-        contenedor.classList.remove('hidden');
-        if (tipo === 'propio') {
-            label.innerText = "Horas invertidas diseñando:";
-            input.placeholder = "Ej: 2 horas";
-        } else {
-            label.innerText = "Costo del archivo STL / piezas a vender:";
-            input.placeholder = "Ej: 100 pesos / 10 piezas = 10";
+            if (tipo === 'sin') {
+                contenedor.classList.add('hidden');
+            } else {
+                contenedor.classList.remove('hidden');
+                if (tipo === 'propio') {
+                    label.innerText = "Horas que te tomó diseñar:";
+                    input.placeholder = "Ej: 2";
+                } else {
+                    label.innerText = "Costo repartido del archivo:";
+                    input.placeholder = "Ej: 15";
+                }
+            }
         }
-    }
-}
-</script>
+
+        // --- PERSISTENCIA DE CONFIGURACIÓN ---
+        const configIds = ['cFil', 'cLuz', 'cLab', 'cDep', 'cFij'];
+        configIds.forEach(id => {
+            if(localStorage.getItem(id)) document.getElementById(id).value = localStorage.getItem(id);
+            document.getElementById(id).oninput = () => localStorage.setItem(id, document.getElementById(id).value);
+        });
+
+        // --- CÁLCULO MAESTRO ---
+        function calcularTodo() {
+            const peso = parseFloat(document.getElementById('peso').value) || 0;
+            const horas = parseFloat(document.getElementById('horas').value) || 0;
+            const valDis = parseFloat(document.getElementById('valorDiseno').value) || 0;
+            const cFil = parseFloat(document.getElementById('cFil').value) / 1000;
+            const cLab = parseFloat(document.getElementById('cLab').value);
+            const cLuz = (400 / 1000) * horas * parseFloat(document.getElementById('cLuz').value);
+            const cDep = parseFloat(document.getElementById('cDep').value) * horas;
+            const cFij = parseFloat(document.getElementById('cFij').value);
+            
+            const tipoD = document.getElementById('tipoDiseno').value;
+            let costoD = (tipoD === 'propio') ? (valDis * cLab) : (tipoD === 'comprado' ? valDis : 0);
+
+            const cEnv = parseFloat(document.getElementById('envio').value);
+            const cEmp = parseFloat(document.getElementById('empaque').value);
+
+            const costoTotal = (peso * cFil) + costoD + (horas * cLab) + cLuz + cDep + cFij + cEnv + cEmp;
+
+            const plat = document.getElementById('plataforma').value;
+            const tPlat = plat === 'ml' ? 0.14 : (plat === 'shopify' ? 0.03 : 0);
+            const tIVA = 0.16;
+
+            const calcP = (margen) => costoTotal * (1 + margen) / (1 - tPlat - tIVA);
+
+            const clasif = document.getElementById('clasif').value;
+            const margenes = { 'C': [0.3, 0.5, 1.0], 'B': [1.0, 1.2, 1.5], 'A': [1.5, 1.8, 2.0] };
+            const [mMay, mMed, mPub] = margenes[clasif];
+
+            const pPub = calcP(mPub);
+            const ganNeta = (pPub * (1 - tPlat - tIVA)) - costoTotal;
+
+            // Renderizar Resultados
+            document.getElementById('resPub').innerText = `$${pPub.toFixed(2)}`;
+            document.getElementById('resMed').innerText = `$${calcP(mMed).toFixed(2)}`;
+            document.getElementById('resMay').innerText = `$${calcP(mMay).toFixed(2)}`;
+
+            // Desglose
+            document.getElementById('dMat').innerText = `$${(peso * cFil).toFixed(2)}`;
+            document.getElementById('dMO').innerText = `$${(costoD + (horas * cLab)).toFixed(2)}`;
+            document.getElementById('dEne').innerText = `$${(cLuz + cDep).toFixed(2)}`;
+            document.getElementById('dFij').innerText = `$${cFij.toFixed(2)}`;
+            document.getElementById('dTotal').innerText = `$${costoTotal.toFixed(2)}`;
+            document.getElementById('dGan').innerText = `$${ganNeta.toFixed(2)}`;
+
+            document.getElementById('resultados').classList.remove('hidden');
+            guardarEnHistorial(peso, horas, pPub);
+        }
+
+        // --- UTILIDADES ---
+        function toggleDesglose() { document.getElementById('desgloseDetalle').classList.toggle('hidden'); }
+
+        function copiarWhatsApp() {
+            const nombre = document.getElementById('nombrePieza').value || "Proyecto 3D";
+            const precio = document.getElementById('resPub').innerText;
+            const tiempo = document.getElementById('horas').value;
+            const mensaje = `📦 *COTIZACIÓN 3D*\n\n🛠 *Proyecto:* ${nombre}\n⏱ *Tiempo:* ${tiempo} horas\n💰 *Inversión:* ${precio}\n\n✅ Incluye IVA y empaque protector.\n\n¿Deseas confirmar tu orden?`;
+            navigator.clipboard.writeText(mensaje).then(() => alert("✅ ¡Copiado! Pégalo en el chat."));
+        }
+
+        function guardarEnHistorial(p, h, precio) {
+            let hist = JSON.parse(localStorage.getItem('historial3d') || '[]');
+            hist.unshift({ t: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}), d: `${p}g | ${h}h`, p: precio.toFixed(2) });
+            localStorage.setItem('historial3d', JSON.stringify(hist.slice(0, 5)));
+            renderHistorial();
+        }
+
+        function renderHistorial() {
+            const container = document.getElementById('listaHistorial');
+            const hist = JSON.parse(localStorage.getItem('historial3d') || '[]');
+            container.innerHTML = hist.map(i => `<div class="bg-slate-700/30 p-3 rounded-xl flex justify-between items-center border border-slate-700 animate-in slide-in-from-left duration-500"><span class="text-[9px] text-slate-500 font-bold">${i.t}</span><span class="text-xs text-slate-300 font-medium">${i.d}</span><span class="text-xs font-black text-indigo-400">$${i.p}</span></div>`).join('');
+        }
+
+        function borrarHistorial() { localStorage.removeItem('historial3d'); renderHistorial(); }
+
+        function actualizarApp() {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.update()));
+                alert("Buscando actualizaciones...");
+                window.location.reload();
+            }
+        }
+
+        // --- SERVICE WORKER ---
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js'));
+        }
+
+        window.onload = renderHistorial;
+    </script>
+</body>
+</html>
+

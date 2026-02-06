@@ -88,17 +88,68 @@
                         <span class="font-bold uppercase text-xs">Público</span>
                         <span id="resPub" class="text-2xl font-black">$0.00</span>
                     </div>
-                    <div class="flex justify-between items-center text-yellow-400 mb-2">
-                        <span class="font-bold uppercase text-xs">M. Mayoreo</span>
-                        <span id="resMed" class="text-xl font-black">$0.00</span>
+                    
+                    <button onclick="toggleDesglose()" class="text-[10px] text-indigo-300 underline uppercase font-bold mb-3">
+                        Ver Desglose de Costos
+                    </button>
+                    
+                    <div id="desgloseDetalle" class="hidden bg-slate-900/50 p-3 rounded-lg text-[11px] space-y-1 text-slate-300 border border-slate-700">
+                        <div class="flex justify-between"><span>Material:</span><span id="dMat"></span></div>
+                        <div class="flex justify-between"><span>Mano de Obra + Diseño:</span><span id="dMO"></span></div>
+                        <div class="flex justify-between"><span>Energía + Deprec:</span><span id="dEne"></span></div>
+                        <div class="flex justify-between"><span>Gastos Fijos:</span><span id="dFij"></span></div>
+                        <div class="flex justify-between border-t border-slate-700 pt-1 font-bold text-white">
+                            <span>Costo Total:</span><span id="dTotal"></span>
+                        </div>
+                        <div class="flex justify-between text-green-400 font-bold italic">
+                            <span>Ganancia Neta (Público):</span><span id="dGan"></span>
+                        </div>
                     </div>
-                    <div class="flex justify-between items-center text-green-400">
-                        <span class="font-bold uppercase text-xs">Mayoreo</span>
-                        <span id="resMay" class="text-xl font-black">$0.00</span>
-                    </div>
+                    <button onclick="copiarWhatsApp()" class="w-full mt-3 bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-all">
+                        <svg style="width:16px;height:16px" viewBox="0 0 24 24">
+                            <path fill="currentColor" d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2m.01 1.67c2.2 0 4.26.86 5.82 2.42a8.22 8.22 0 0 1 2.41 5.83c0 4.54-3.7 8.23-8.24 8.23-1.48 0-2.93-.39-4.19-1.15l-.3-.17-3.12.82.83-3.04-.2-.32a8.19 8.19 0 0 1-1.26-4.38c.01-4.54 3.7-8.24 8.25-8.24M8.53 7.33c-.16 0-.43.06-.66.31-.22.25-.87.86-.87 2.07 0 1.22.89 2.39 1 2.56.14.17 1.76 2.67 4.25 3.73.59.26 1.05.41 1.41.52.6.19 1.14.16 1.57.1.48-.07 1.47-.6 1.67-1.18.21-.58.21-1.07.14-1.18-.06-.1-.23-.16-.48-.28s-1.47-.73-1.7-.81c-.23-.08-.4-.12-.57.12-.17.25-.66.82-.81 1-.15.17-.29.19-.54.06-.25-.12-1.05-.39-1.99-1.23-.74-.66-1.23-1.47-1.38-1.72-.15-.25-.01-.38.11-.51.11-.11.25-.29.37-.43s.17-.25.25-.41c.08-.17.04-.31-.02-.43-.06-.11-.57-1.37-.77-1.88-.2-.48-.4-.41-.57-.42h-.44Z" />
+                        </svg>
+                        ENVIAR PRESUPUESTO
+                    </button>
+
+                    <input type="text" id="nombrePieza" class="w-full bg-slate-700 p-2 rounded text-xs mt-2 outline-none border border-slate-600" placeholder="Nombre del proyecto (opcional)">
                 </div>
             </div>
+
+            <section class="mt-6">
+                <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Últimos Cálculos</h3>
+                <div id="listaHistorial" class="space-y-2 text-[12px]">
+                    </div>
+                <button onclick="borrarHistorial()" class="mt-2 text-[10px] text-red-400 opacity-50 uppercase">Borrar Historial</button>
+            </section>
         </main>
+        <div class="px-5 pb-4">
+            <button onclick="actualizarApp()" class="w-full py-2 bg-slate-700 text-[10px] text-slate-400 font-bold rounded-lg border border-slate-600 uppercase tracking-widest active:bg-indigo-600 active:text-white transition-all">
+                🔄 Buscar Actualizaciones
+            </button>
+        </div>
+
+        <script>
+            // Función para forzar la actualización
+            function actualizarApp() {
+                if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                        for(let registration of registrations) {
+                            registration.update();
+                        }
+                    });
+                    alert("Buscando cambios... La app se reiniciará.");
+                    window.location.reload(true);
+                }
+            }
+
+            // Registro estándar del Service Worker (Asegúrate de tener este)
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => {
+                    navigator.serviceWorker.register('./sw.js');
+                });
+            }
+        </script>
 
         <details class="bg-slate-950 p-4">
             <summary class="text-center text-[10px] font-bold opacity-50 cursor-pointer uppercase">Configuración de Costos Fijos</summary>
@@ -119,6 +170,12 @@
             if(localStorage.getItem(id)) document.getElementById(id).value = localStorage.getItem(id);
             document.getElementById(id).oninput = () => localStorage.setItem(id, document.getElementById(id).value);
         });
+
+        // Función para mostrar/ocultar desglose
+        function toggleDesglose() {
+            const el = document.getElementById('desgloseDetalle');
+            el.classList.toggle('hidden');
+        }
 
         function calcularTodo() {
             // Inputs
@@ -168,7 +225,87 @@
             document.getElementById('resMed').innerText = `$${calcP(mMed).toFixed(2)}`;
             document.getElementById('resPub').innerText = `$${calcP(mPub).toFixed(2)}`;
             document.getElementById('resultados').classList.remove('hidden');
+
+            // Cálculos específicos para el desglose
+            const matFinal = (peso * cFil).toFixed(2);
+            const moFinal = (costoD + (horas * cLab)).toFixed(2);
+            const eneDepFinal = (cLuz + cDep).toFixed(2);
+            const precioPubVal = calcP(mPub);
+            const gananciaNeta = (precioPubVal * (1 - tPlat - tIVA)) - costoTotal;
+
+            // Llenar Desglose
+            document.getElementById('dMat').innerText = `$${matFinal}`;
+            document.getElementById('dMO').innerText = `$${moFinal}`;
+            document.getElementById('dEne').innerText = `$${eneDepFinal}`;
+            document.getElementById('dFij').innerText = `$${cFij.toFixed(2)}`;
+            document.getElementById('dTotal').innerText = `$${costoTotal.toFixed(2)}`;
+            document.getElementById('dGan').innerText = `$${gananciaNeta.toFixed(2)}`;
+
+            // Mostrar resultados principales
+            document.getElementById('resMay').innerText = `$${calcP(mMay).toFixed(2)}`;
+            document.getElementById('resMed').innerText = `$${calcP(mMed).toFixed(2)}`;
+            document.getElementById('resPub').innerText = `$${precioPubVal.toFixed(2)}`;
+            document.getElementById('resultados').classList.remove('hidden');
+
+            // GUARDAR EN HISTORIAL
+            guardarEnHistorial(peso, horas, precioPubVal);
+            function guardarEnHistorial(p, h, precio) {
+                let historial = JSON.parse(localStorage.getItem('historial3d') || '[]');
+                const nuevo = {
+                    fecha: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+                    detalle: `${p}g | ${h}h`,
+                    precio: precio.toFixed(2)
+                };
+                
+                historial.unshift(nuevo); // Agregar al inicio
+                historial = historial.slice(0, 5); // Mantener solo los últimos 5
+                localStorage.setItem('historial3d', JSON.stringify(historial));
+                renderHistorial();
+            }
+
+            function renderHistorial() {
+                const container = document.getElementById('listaHistorial');
+                const historial = JSON.parse(localStorage.getItem('historial3d') || '[]');
+                
+                container.innerHTML = historial.map(item => `
+                    <div class="bg-slate-700/30 p-2 rounded-lg flex justify-between items-center border border-slate-700">
+                        <span class="text-slate-500 text-[10px]">${item.fecha}</span>
+                        <span class="font-medium text-slate-300">${item.detalle}</span>
+                        <span class="font-bold text-indigo-400">$${item.precio}</span>
+                    </div>
+                `).join('');
+            }
+
+            function borrarHistorial() {
+                localStorage.removeItem('historial3d');
+                renderHistorial();
+            }
         }
+        function copiarWhatsApp() {
+            const nombre = document.getElementById('nombrePieza').value || "Proyecto 3D";
+            const precio = document.getElementById('resPub').innerText;
+            const tiempo = document.getElementById('horas').value;
+            
+            // Crear el texto con formato de WhatsApp (negritas con asteriscos)
+            const mensaje = `📦 *PRESUPUESTO DE IMPRESIÓN 3D*\n\n` +
+                            `🛠 *Proyecto:* ${nombre}\n` +
+                            `⏱ *Tiempo estimado:* ${tiempo} horas\n` +
+                            `💰 *Inversión:* ${precio}\n\n` +
+                            `✅ *Incluye:* IVA y empaque protector.\n` +
+                            `⚠️ _Sujeto a cambios según ajustes de diseño._\n\n` +
+                            `¿Te gustaría proceder con la orden?`;
+
+            // Copiar al portapapeles
+            navigator.clipboard.writeText(mensaje).then(() => {
+                alert("✅ Presupuesto copiado. ¡Pégalo en WhatsApp!");
+            }).catch(err => {
+                console.error('Error al copiar: ', err);
+            });
+        }
+        // Cargar historial al iniciar
+        window.onload = () => {
+            renderHistorial();
+        };
     </script>
     <script>
         if ('serviceWorker' in navigator) {
@@ -181,3 +318,4 @@
     </script>
 </body>
 </html>
+

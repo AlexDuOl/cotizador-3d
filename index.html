@@ -308,14 +308,27 @@
         };
     </script>
     <script>
+        // Función para forzar la actualización
+        function actualizarApp() {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                    for(let registration of registrations) {
+                        registration.update();
+                    }
+                });
+                alert("Buscando cambios... La app se reiniciará.");
+                window.location.reload(true);
+            }
+        }
+
+        // Registro estándar del Service Worker (Asegúrate de tener este)
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-            navigator.serviceWorker.register('./sw.js')
-                .then(reg => console.log('Service Worker registrado', reg))
-                .catch(err => console.log('Error al registrar SW', err));
+                navigator.serviceWorker.register('./sw.js');
             });
         }
     </script>
 </body>
 </html>
+
 
